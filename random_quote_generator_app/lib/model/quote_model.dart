@@ -10,5 +10,12 @@ class QuoteModel extends HiveObject {
   @HiveField(1)
   String author;
 
-  QuoteModel({required this.text, required this.author});
+  @HiveField(2)
+  String imageUrl;
+
+  QuoteModel({
+    required this.text,
+    required this.author,
+    required this.imageUrl,
+  });
 }

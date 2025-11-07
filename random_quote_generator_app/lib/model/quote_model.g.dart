@@ -19,6 +19,7 @@ class QuoteModelAdapter extends TypeAdapter<QuoteModel> {
     return QuoteModel(
       text: fields[0] as String,
       author: fields[1] as String,
+      imageUrl: fields[2] as String,
     );
   }
 
