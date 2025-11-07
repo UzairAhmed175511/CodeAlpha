@@ -121,45 +121,50 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
 
     return GestureDetector(
       onTap: viewModel.toggleAnswer,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-        height: 250,
-        width: double.infinity,
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: viewModel.showAnswer
-                ? [Colors.greenAccent.shade100, Colors.teal.shade100]
-                : isDark
-                ? [Colors.grey.shade900, Colors.grey.shade800]
-                : [Colors.blueAccent.shade100, Colors.lightBlue.shade50],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      child: Animate(
+        effects: [FlipEffect(duration: 400.ms, curve: Curves.easeInOut)],
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          height: 250,
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: viewModel.showAnswer
+                  ? [Colors.greenAccent.shade100, Colors.teal.shade100]
+                  : isDark
+                  ? [Colors.grey.shade900, Colors.grey.shade800]
+                  : [Colors.blueAccent.shade100, Colors.lightBlue.shade50],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+                color: isDark ? Colors.black54 : Colors.black12,
+              ),
+            ],
           ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-              color: isDark ? Colors.black54 : Colors.black12,
+          child: Center(
+            child: Text(
+              viewModel.showAnswer
+                  ? viewModel.currentCard.answer
+                  : viewModel.currentCard.question,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: viewModel.showAnswer
+                    ? (isDark
+                          ? const Color.fromARGB(255, 11, 35, 30)
+                          : Colors.teal.shade900)
+                    : (isDark ? Colors.blueAccent : Colors.blue.shade900),
+              ),
+              textAlign: TextAlign.center,
             ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            viewModel.showAnswer
-                ? viewModel.currentCard.answer
-                : viewModel.currentCard.question,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: viewModel.showAnswer
-                  ? (isDark ? Colors.teal.shade900 : Colors.teal.shade900)
-                  : (isDark ? Colors.blueAccent : Colors.blue.shade900),
-            ),
-            textAlign: TextAlign.center,
-          ).animate().fadeIn(duration: 400.ms).scaleXY(begin: 0.9, end: 1.0),
+          ),
         ),
       ),
     );
@@ -170,17 +175,24 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
     required VoidCallback onTap,
     Color color = Colors.blueAccent,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(30),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.15),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, color: color, size: 26),
-      ),
+    return GestureDetector(
+      onTap: () {
+        onTap();
+      },
+      child:
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 26),
+          ).animate().scaleXY(
+            begin: 0.9,
+            end: 1.0,
+            curve: Curves.easeOutBack,
+            duration: 150.ms,
+          ),
     );
   }
 
@@ -199,109 +211,125 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Theme.of(context).cardColor, // 🌙 auto-adapts to theme
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-      ),
+      backgroundColor: Colors.transparent, // transparent to allow animation
       builder: (_) {
         final theme = Theme.of(context);
         final isDark = theme.brightness == Brightness.dark;
 
         return Padding(
           padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            top: 30,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                editIndex != null ? "Edit Flashcard" : "Add New Flashcard",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // 📝 Question field
-              TextField(
-                controller: questionController,
-                style: TextStyle(color: theme.colorScheme.onSurface),
-                decoration: InputDecoration(
-                  labelText: "Question",
-                  labelStyle: TextStyle(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                  filled: true,
-                  fillColor: isDark
-                      ? Colors.grey[800]
-                      : Colors.grey[100], // 🌗 auto color
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
-
-              // 🧠 Answer field
-              TextField(
-                controller: answerController,
-                style: TextStyle(color: theme.colorScheme.onSurface),
-                decoration: InputDecoration(
-                  labelText: "Answer",
-                  labelStyle: TextStyle(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                  filled: true,
-                  fillColor: isDark
-                      ? Colors.grey[800]
-                      : Colors.grey[100], // 🌗 auto color
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 25),
-
-              // 💾 Save button
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: theme.colorScheme.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                icon: const Icon(Icons.save, color: Colors.white),
-                label: const Text(
-                  "Save",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                onPressed: () {
-                  if (editIndex != null) {
-                    viewModel.editCard(
-                      editIndex,
-                      questionController.text,
-                      answerController.text,
-                    );
-                  } else {
-                    viewModel.addCard(
-                      questionController.text,
-                      answerController.text,
-                    );
-                  }
-                  Navigator.pop(context);
-                },
+          child: Animate(
+            effects: [
+              FadeEffect(duration: 300.ms),
+              SlideEffect(
+                begin: const Offset(0, 0.3), // slide from bottom
+                end: Offset.zero,
+                curve: Curves.easeOutCubic,
+                duration: 300.ms,
               ),
             ],
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(25),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    editIndex != null ? "Edit Flashcard" : "Add New Flashcard",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  TextField(
+                    controller: questionController,
+                    style: TextStyle(color: theme.colorScheme.onSurface),
+                    decoration: InputDecoration(
+                      labelText: "Question",
+                      labelStyle: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                      filled: true,
+                      fillColor: isDark ? Colors.grey[800] : Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: answerController,
+                    style: TextStyle(color: theme.colorScheme.onSurface),
+                    decoration: InputDecoration(
+                      labelText: "Answer",
+                      labelStyle: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                      filled: true,
+                      fillColor: isDark ? Colors.grey[800] : Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      backgroundColor: theme.colorScheme.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    icon: const Icon(Icons.save, color: Colors.white),
+                    label:
+                        const Text(
+                          "Save",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ).animate().scaleXY(
+                          begin: 0.95,
+                          end: 1.0,
+                          curve: Curves.easeOut,
+                          duration: 200.ms,
+                        ), // 🔥 pop animation
+                    onPressed: () {
+                      if (editIndex != null) {
+                        viewModel.editCard(
+                          editIndex,
+                          questionController.text,
+                          answerController.text,
+                        );
+                      } else {
+                        viewModel.addCard(
+                          questionController.text,
+                          answerController.text,
+                        );
+                      }
+                      Navigator.pop(context);
+                    },
+                  ).animate().scaleXY(
+                    begin: 0.95,
+                    end: 1.0,
+                    curve: Curves.easeOut,
+                    duration: 200.ms,
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       },
