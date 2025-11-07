@@ -24,7 +24,6 @@ class QuoteScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          // Background Image with fade animation
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 800),
             child: Container(
@@ -45,14 +44,13 @@ class QuoteScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Main content
+
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Quote Card
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 700),
                     curve: Curves.easeInOut,
